@@ -107,7 +107,7 @@ let exportDatabase = async function(begin, end) {
             }).then(async (count) => {
                 console.log(count);
                 let promises = [];
-                let pages = Math.ceil(count / 1000);
+                let pages = Math.ceil(count / 10000);
                 for (let i=0; i<pages; i++) {
                     let results = await Ticker.findAll({
                         where: {
@@ -116,8 +116,8 @@ let exportDatabase = async function(begin, end) {
                             }
                         },
                         order: [['sequence', 'ASC']],
-                        offset: (i * 999),
-                        limit: 1000
+                        offset: (i * 9999),
+                        limit: 10000
                     });
                     results.forEach((result) => {
                         let entryPromise = dataEntry.build({
