@@ -120,10 +120,11 @@ let exportDatabase = async function(begin, end) {
                         offset: (i * 9999),
                         limit: 10000
                     });
-                    console.info("Saving batch " + i + "/" + pages + "...");
+                    console.info("Saving entry " + ((i+1)*10000) + "/" + (pages*10000) + "...");
                     for (let j=0; j<results.length; j++) {
                         let result = results[j];
                         try {
+                            // TODO optimize for speed, too much awaiting
                             let ret = await dataEntry.build({
                                 product_id: result.product_id,
                                 sequence: result.sequence,
