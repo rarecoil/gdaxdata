@@ -105,9 +105,10 @@ let exportDatabase = async function(begin, end) {
                 },
                 order: [['sequence', 'ASC']]
             }).then(async (count) => {
-                console.log(count);
-                let promises = [];
                 let pages = Math.ceil(count / 10000);
+                let pages_saved = 0;
+                let successes = 0;
+                let failures = 0;
                 for (let i=0; i<pages; i++) {
                     let results = await Ticker.findAll({
                         where: {
@@ -119,29 +120,35 @@ let exportDatabase = async function(begin, end) {
                         offset: (i * 9999),
                         limit: 10000
                     });
-                    results.forEach((result) => {
-                        let entryPromise = dataEntry.build({
-                            product_id: result.product_id,
-                            sequence: result.sequence,
-                            time: result.time,
-                            price: result.price,
-                            last_size: result.last_size,
-                            best_bid: result.best_bid,
-                            best_ask: result.best_ask,
-                            volume_24h: result.volume_24h,
-                            low_24h: result.low_24h,
-                            high_24h: result.high_24h
-                        }).save();
-                        promises.push(entryPromise);
-                    });
+                    for (let j=0; j<results.length; j++) {
+                        let result = results[j];
+                        try {
+                            let ret = await dataEntry.build({
+                                product_id: result.product_id,
+                                sequence: result.sequence,
+                                time: result.time,
+                                price: result.price,
+                                last_size: result.last_size,
+                                best_bid: result.best_bid,
+                                best_ask: result.best_ask,
+                                volume_24h: result.volume_24h,
+                                low_24h: result.low_24h,
+                                high_24h: result.high_24h
+                            }).save();
+                            successes++;
+                        } catch (e) {
+                            console.error(ret);
+                            failures++;
+                        }
+                    }
                 }
-                Promise.all(promises).then(() => {
-                    console.log('Database snapshot saved, ' + promises.length + ' rows created.');
-                    resolve([temp_db_filepath, promises.length]);
-                }, () => {
-                    // promises failed
+                if (failures !== 0) {
+                    console.error("Saving failed for " + failures + " entries.");
                     reject(false);
-                });
+                } else {
+                    console.log('Database snapshot saved, ' + successes + ' rows created.');
+                    resolve([temp_db_filepath, successes]);
+                }
             });
         });
     });
