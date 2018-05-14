@@ -15,6 +15,8 @@ package and you are on your own if you have bugs.**
 
 ### Usage
 
+Copy `config.sample.json` to `config.json`, then edit with your information.
+
 `build_site.js` will build the static website and generate the snapshot SQLite3 databases
 from the canonical one.
 
