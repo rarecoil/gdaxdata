@@ -20,6 +20,7 @@ const config = new Config('./config.json');
 const SITE_FILE_PATH = path.resolve(config.get('site_path'));
 const MANIFEST_LOCATION = path.join(SITE_FILE_PATH, 'manifest.json');
 
+process.chdir(__dirname);
 let begin = moment().date(0).valueOf();
 let end = moment().date(moment().daysInMonth()-1).valueOf();
 
@@ -269,7 +270,7 @@ let main = async function() {
             // TODO: look at tempfile security in node
             fs.copyFileSync(dbpath, filename);
             fs.unlinkSync(dbpath);
-            console.log(filename);
+
             console.info("Compressing file.");
             child_process.spawnSync('gzip', [' -8 ', filename]);
             let compressed_file_path = filename + '.gz';
@@ -282,6 +283,8 @@ let main = async function() {
                 try {
                     uri = await uploadToS3(compressed_file_path);
                     console.info("Successful upload to S3.");
+
+                    // get them off the server
                     fs.unlinkSync(filename);
                     fs.unlinkSync(compressed_file_path);
                 } catch (e) {
