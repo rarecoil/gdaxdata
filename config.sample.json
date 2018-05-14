@@ -1,0 +1,11 @@
+{
+    "gdax_api_key": "YOUR_GDAX_API_KEY",
+    "gdax_api_secret": "YOUR_GDAX_API_SECRET",
+    "gdax_api_passphrase": "YOUR_GDAX_API_PASSPHRASE",
+    "s3_key": "YOUR_S3_KEY",
+    "s3_secret": "YOUR_S3_SECRET",
+    "s3_path": "FOLDER_PATH_INSIDE_S3_BUCKET",
+    "s3_endpoint": "YOUR_S3_BUCKET_ENDPOINT",
+    "s3_bucket_name": "YOUR_S3_BUCKET_NAME",
+    "site_path": "ABSOLUTE_PATH_TO_SITE_FOLDER_IN_PRODUCTION"
+}

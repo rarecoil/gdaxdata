@@ -1,0 +1,17 @@
+{
+    "name": "gdaxdata",
+    "version": "0.0.0",
+    "description": "GDAX data collector and archiver",
+    "homepage": "https://github.com/10a7/gdaxdata",
+    "license": "GPL-3.0",
+    "author": {
+        "name": "10a7",
+        "url": "https://etheria.io/"
+    },
+    "dependencies": {
+        "aws-sdk": "^2.238.1",
+        "gdax": "^0.7.0",
+        "moment": "^2.22.1",
+        "sequelize": "^4.37.7"
+    }
+}
