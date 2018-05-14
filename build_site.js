@@ -90,34 +90,51 @@ let exportDatabase = async function(begin, end) {
         console.log("Creating database and exporting results to SQLite.");
         console.log("This will take a while.");
         dataEntry.sync().then(() => {
-            // fs.unlinkSync(temp_db_filepath);
-
             var promises = []; // and they still feel oh so wasted on myself
 
-            Ticker.findAll({
+            // we will need to paginate this otherwise we get oom killed
+            // on shitty VPS with no memory
+
+            // TODO fucking figure out if we're gonna use promises or async/await
+            // choose one or the other
+            Ticker.count({
                 where: {
                     time: {
                         [Op.between]: [begin, end]
                     }
                 },
-                order: [['sequence', 'ASC']],
-                raw: true
-            }).then(results => {
-                results.forEach((result) => {
-                    let entryPromise = dataEntry.build({
-                        product_id: result.product_id,
-                        sequence: result.sequence,
-                        time: result.time,
-                        price: result.price,
-                        last_size: result.last_size,
-                        best_bid: result.best_bid,
-                        best_ask: result.best_ask,
-                        volume_24h: result.volume_24h,
-                        low_24h: result.low_24h,
-                        high_24h: result.high_24h
-                    }).save();
-                    promises.push(entryPromise);
-                });
+                order: [['sequence', 'ASC']]
+            }).then(async (count) => {
+                console.log(count);
+                let promises = [];
+                let pages = Math.ceil(count / 1000);
+                for (let i=0; i<pages; i++) {
+                    let results = await Ticker.findAll({
+                        where: {
+                            time: {
+                                [Op.between]: [begin, end]
+                            }
+                        },
+                        order: [['sequence', 'ASC']],
+                        offset: (i * 999),
+                        limit: 1000
+                    });
+                    results.forEach((result) => {
+                        let entryPromise = dataEntry.build({
+                            product_id: result.product_id,
+                            sequence: result.sequence,
+                            time: result.time,
+                            price: result.price,
+                            last_size: result.last_size,
+                            best_bid: result.best_bid,
+                            best_ask: result.best_ask,
+                            volume_24h: result.volume_24h,
+                            low_24h: result.low_24h,
+                            high_24h: result.high_24h
+                        }).save();
+                        promises.push(entryPromise);
+                    });
+                }
                 Promise.all(promises).then(() => {
                     console.log('Database snapshot saved, ' + promises.length + ' rows created.');
                     resolve([temp_db_filepath, promises.length]);
