@@ -218,7 +218,7 @@ let rebuildIndex = function(manifest_data) {
                 working_template = working_template.replace('{{MONTH}}', date.format('MMMM'));
             }
             working_template = working_template.replace('{{YEAR}}', date.format('YYYY'));
-            working_template = working_template.replace('{{FILE_SIZE}}', file_size + 'K');
+            working_template = working_template.replace('{{FILE_SIZE}}', file_size + 'M');
             working_template = working_template.replace('{{TOTAL_ENTRIES}}', file_count);
             working_template = working_template.replace('{{FILE_LINK}}', file_location);
             working_template = working_template.replace(' id="template"', '');
@@ -265,25 +265,30 @@ let main = async function() {
             let ret = await exportDatabase(start, end);
             let dbpath = ret[0];
             let num_entries = ret[1];
-            let stat = fs.statSync(dbpath);
-            let db_size = Math.round(stat.size / 1000.0);
 
             // TODO: look at tempfile security in node
             fs.copyFileSync(dbpath, filename);
+            fs.unlinkSync(dbpath);
             console.log(filename);
             console.info("Compressing file.");
             child_process.spawnSync('gzip', [' -8 ', filename]);
             let compressed_file_path = filename + '.gz';
             let uri = false;
             if (compressed_file_path) {
+                let stat = fs.statSync(compressed_file_path);
+                let db_size = Math.round(stat.size / 1000000.0);
                 console.info("Successfully created file.");
                 console.info("Uploading to S3");
                 try {
                     uri = await uploadToS3(compressed_file_path);
                     console.info("Successful upload to S3.");
+                    fs.unlinkSync(filename);
+                    fs.unlinkSync(compressed_file_path);
                 } catch (e) {
                     console.error("Could not upload file " + compressed_file_path);
                     console.debug(e);
+                    fs.unlinkSync(filename);
+                    fs.unlinkSync(compressed_file_path);
                     return;
                 }
                 // update manifest now that this has been uploaded.
