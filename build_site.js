@@ -121,6 +121,7 @@ let exportDatabase = async function(begin, end) {
                         limit: 10000
                     });
                     for (let j=0; j<results.length; j++) {
+                        console.info("Saving batch " + i + "/" + pages + "...");
                         let result = results[j];
                         try {
                             let ret = await dataEntry.build({
