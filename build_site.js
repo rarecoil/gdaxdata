@@ -274,7 +274,12 @@ let main = async function() {
             fs.unlinkSync(dbpath);
 
             console.info("Compressing file.");
-            child_process.spawnSync('xz', [' -1 ', filename]);
+            let compression_flag = '-6';
+            if (nightly) {
+                // be more efficient with cpu time on nightlies
+                compression_flag = '-2';
+            }
+            child_process.spawnSync('xz', [compression_flag, filename]);
             let compressed_file_path = filename + '.xz';
             let uri = false;
             if (compressed_file_path) {
