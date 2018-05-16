@@ -308,7 +308,7 @@ let main = async function() {
                 } else {
                     let new_path = path.join(config.get('site_data_path'), path.basename(compressed_file_path))
                     fs.copyFileSync(compressed_file_path, new_path);
-                    uri = config.get('site_data_uri') + compressed_file_path; 
+                    uri = config.get('site_data_uri') + path.basename(compressed_file_path); 
                 }
                 // update manifest now that this has been uploaded.
                 if (nightly) {
