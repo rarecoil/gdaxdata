@@ -280,6 +280,7 @@ let main = async function() {
             if (compressed_file_path) {
                 let stat = fs.statSync(compressed_file_path);
                 let db_size = Math.round(stat.size / 1000000.0);
+                let db_size_bytes = stat.size;
                 console.info("Successfully created file.");
 
                 if (config.get('use_s3') === true) {
@@ -317,13 +318,15 @@ let main = async function() {
                     manifest.files['nightly'] = {
                         uri: uri,
                         count: num_entries,
-                        size: db_size
+                        size: db_size,
+                        size_bytes: db_size_bytes
                     };
                 } else {
                     manifest.files[month.format('YYYY-MM')] = {
                         uri: uri,
                         count: num_entries,
-                        size: db_size
+                        size: db_size,
+                        size_bytes: db_size_bytes
                     };
                 }
                 manifest.last_updated = new Date().getTime();
