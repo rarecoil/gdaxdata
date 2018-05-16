@@ -279,7 +279,7 @@ let main = async function() {
             let uri = false;
             if (compressed_file_path) {
                 let stat = fs.statSync(compressed_file_path);
-                let db_size = Math.round(stat.size / 1000000.0);
+                let db_size = Number(stat.size / 1000000.0).toFixed(2);
                 let db_size_bytes = stat.size;
                 console.info("Successfully created file.");
 
