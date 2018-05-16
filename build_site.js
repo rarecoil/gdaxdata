@@ -279,20 +279,27 @@ let main = async function() {
                 let stat = fs.statSync(compressed_file_path);
                 let db_size = Math.round(stat.size / 1000000.0);
                 console.info("Successfully created file.");
-                console.info("Uploading to S3");
-                try {
-                    uri = await uploadToS3(compressed_file_path);
-                    console.info("Successful upload to S3.");
 
-                    // get them off the server
-                    fs.unlinkSync(filename);
-                    fs.unlinkSync(compressed_file_path);
-                } catch (e) {
-                    console.error("Could not upload file " + compressed_file_path);
-                    console.debug(e);
-                    fs.unlinkSync(filename);
-                    fs.unlinkSync(compressed_file_path);
-                    return;
+                if (config.get('use_s3') === true) {
+                    console.info("Uploading to S3");
+                    try {
+                        uri = await uploadToS3(compressed_file_path);
+                        console.info("Successful upload to S3.");
+
+                        // get them off the server
+                        fs.unlinkSync(filename);
+                        fs.unlinkSync(compressed_file_path);
+                    } catch (e) {
+                        console.error("Could not upload file " + compressed_file_path);
+                        console.debug(e);
+                        fs.unlinkSync(filename);
+                        fs.unlinkSync(compressed_file_path);
+                        return;
+                    }
+                } else {
+                    let new_path = path.join(config.get('site_data_path'), path.basename(compressed_file_path))
+                    fs.copyFileSync(compressed_file_path, new_path);
+                    uri = config.get('site_data_uri') + compressed_file_path; 
                 }
                 // update manifest now that this has been uploaded.
                 if (nightly) {
