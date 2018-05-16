@@ -286,14 +286,23 @@ let main = async function() {
                         uri = await uploadToS3(compressed_file_path);
                         console.info("Successful upload to S3.");
 
-                        // get them off the server
-                        fs.unlinkSync(filename);
-                        fs.unlinkSync(compressed_file_path);
+                        try {
+                            // get them off the server
+                            fs.unlinkSync(filename);
+                            fs.unlinkSync(compressed_file_path);
+                        } catch(e) {
+                            console.error("Files went away for some reason.");
+                        }
                     } catch (e) {
                         console.error("Could not upload file " + compressed_file_path);
                         console.debug(e);
-                        fs.unlinkSync(filename);
-                        fs.unlinkSync(compressed_file_path);
+                        try {
+                            // get them off the server
+                            fs.unlinkSync(filename);
+                            fs.unlinkSync(compressed_file_path);
+                        } catch(e) {
+                            console.error("Files went away for some reason.");
+                        }
                         return;
                     }
                 } else {
