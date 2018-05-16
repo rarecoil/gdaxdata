@@ -274,8 +274,8 @@ let main = async function() {
             fs.unlinkSync(dbpath);
 
             console.info("Compressing file.");
-            child_process.spawnSync('gzip', [' -8 ', filename]);
-            let compressed_file_path = filename + '.gz';
+            child_process.spawnSync('xz', [' -1 ', filename]);
+            let compressed_file_path = filename + '.xz';
             let uri = false;
             if (compressed_file_path) {
                 let stat = fs.statSync(compressed_file_path);
@@ -289,22 +289,22 @@ let main = async function() {
                         uri = await uploadToS3(compressed_file_path);
                         console.info("Successful upload to S3.");
 
-                        try {
-                            // get them off the server
+                        // get them off the server
+                        if (fs.existsSync(filename)) {
                             fs.unlinkSync(filename);
+                        }
+                        if (fs.existsSync(compressed_file_path)) {
                             fs.unlinkSync(compressed_file_path);
-                        } catch(e) {
-                            console.error("Files went away for some reason.");
                         }
                     } catch (e) {
                         console.error("Could not upload file " + compressed_file_path);
                         console.debug(e);
-                        try {
-                            // get them off the server
+                        // get them off the server
+                        if (fs.existsSync(filename)) {
                             fs.unlinkSync(filename);
+                        }
+                        if (fs.existsSync(compressed_file_path)) {
                             fs.unlinkSync(compressed_file_path);
-                        } catch(e) {
-                            console.error("Files went away for some reason.");
                         }
                         return;
                     }
@@ -312,6 +312,13 @@ let main = async function() {
                     let new_path = path.join(config.get('site_data_path'), path.basename(compressed_file_path))
                     fs.copyFileSync(compressed_file_path, new_path);
                     uri = config.get('site_data_uri') + path.basename(compressed_file_path); 
+                    // get them off the server
+                    if (fs.existsSync(filename)) {
+                        fs.unlinkSync(filename);
+                    }
+                    if (fs.existsSync(compressed_file_path)) {
+                        fs.unlinkSync(compressed_file_path);
+                    }
                 }
                 // update manifest now that this has been uploaded.
                 if (nightly) {
