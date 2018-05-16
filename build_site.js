@@ -15,7 +15,9 @@ const Config = require('./lib/config');
 const config = new Config('./config.json');
 
 /*
-    Builds the index.html page and torrent file for the data.
+    This script is currently UGLY.
+    I'll probably clean it up later once I add some improvements to how
+    nightly SQLite data is handled; right now it's extremely inefficient.
 */
 const SITE_FILE_PATH = path.resolve(config.get('site_path'));
 const MANIFEST_LOCATION = path.join(SITE_FILE_PATH, 'manifest.json');
