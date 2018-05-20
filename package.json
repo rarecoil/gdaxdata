@@ -10,8 +10,10 @@
     },
     "dependencies": {
         "aws-sdk": "^2.238.1",
+        "bitfinex-api-node": "^2.0.0-beta.1",
         "gdax": "^0.7.0",
         "moment": "^2.22.1",
+        "npm": "^6.0.1",
         "sequelize": "^4.37.7",
         "sqlite3": "^4.0.0"
     }

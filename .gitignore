@@ -65,3 +65,4 @@ config.json
 site/manifest.json
 site/index.html
 data.sqlite
+test.sqlite
